@@ -2,7 +2,7 @@ import { PaginatedRuns, RunDetail } from "@/lib/types";
 
 // In Docker via docker-compose, this will be server-side accessible via http://backend:8000
 // Note that Next.js Server Components run server-side
-const API_URL = process.env.API_URL || "http://127.0.0.1:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000/api";
 
 export async function getRuns({
   page = 1,
@@ -25,7 +25,10 @@ export async function getRuns({
   const res = await fetch(`${API_URL}/runs?${params.toString()}`, {
     cache: "no-store",
   });
-  if (!res.ok) throw new Error("Failed to fetch runs");
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to fetch runs: ${res.status} ${errorText}`);
+  }
   return res.json();
 }
 
