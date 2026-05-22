@@ -19,6 +19,14 @@ export type Run = {
   tokens_used: number | null;
   status: string;
   metadata_json: Record<string, unknown> | null;
+
+  error_type?: string | null;
+  error_message?: string | null;
+  stack_trace?: string | null;
+  timeout_reason?: string | null;
+  malformed_output?: string | null;
+  token_limit_hit?: string | null;
+
   created_at: string;
 };
 

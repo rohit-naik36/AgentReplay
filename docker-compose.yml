@@ -1,16 +1,21 @@
 services:
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: agentreplay-db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: agentreplay
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-agentreplay}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-agentreplay}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -19,11 +24,14 @@ services:
     container_name: agentreplay-backend
     restart: always
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/agentreplay
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-agentreplay}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend:/app
 
   frontend:
     build:
@@ -31,14 +39,16 @@ services:
       dockerfile: Dockerfile
     container_name: agentreplay-frontend
     restart: always
-    command: sh -c "node_modules/.bin/next dev -H 0.0.0.0"
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8000/api
-      CI: "true"
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     depends_on:
       - backend
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+      - /app/.next
 
 volumes:
   pgdata:

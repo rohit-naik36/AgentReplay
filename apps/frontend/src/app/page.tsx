@@ -11,9 +11,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SearchInput } from "@/components/agent-run/search-input";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage(props: {
   searchParams?: Promise<{ search?: string; status?: string; page?: string }>;
@@ -34,31 +42,29 @@ export default async function DashboardPage(props: {
       <div className="flex flex-col sm:flex-row gap-4 items-end bg-muted/50 p-4 rounded-lg border">
         <div className="flex flex-col gap-2 w-full sm:w-1/3">
           <Label htmlFor="search">Search</Label>
-          <form action="/">
-            <Input
-              type="text"
-              name="search"
-              id="search"
-              placeholder="Search prompt or run ID..."
-              defaultValue={search}
-            />
-            <input type="hidden" name="status" value={status} />
-          </form>
+          <SearchInput initialValue={search} />
         </div>
         <div className="flex flex-col gap-2 w-full sm:w-1/4">
            <Label>Status</Label>
-           <form action="/" className="flex gap-2">
-              <input type="hidden" name="search" value={search} />
-              <select
-                name="status"
-                defaultValue={status}
-                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="all">All</option>
-                <option value="success">Success</option>
-                <option value="failed">Failed</option>
-                <option value="replayed">Replayed</option>
-              </select>
+           <form action={async (formData: FormData) => {
+              "use server";
+              const newStatus = formData.get("status")?.toString() || "all";
+              const params = new URLSearchParams();
+              if (search) params.set("search", search);
+              if (newStatus && newStatus !== "all") params.set("status", newStatus);
+              redirect(`/?${params.toString()}`);
+           }} className="flex gap-2">
+              <Select name="status" defaultValue={status}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="replayed">Replayed</SelectItem>
+                </SelectContent>
+              </Select>
               <Button type="submit" variant="outline">Filter</Button>
            </form>
         </div>
