@@ -87,7 +87,7 @@ export default async function DashboardPage(props: {
             {runs.items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  No runs found. Try adjusting your filters or send some data!
+                  No execution runs match your current search and filter criteria. Adjust your search or check your SDK integration.
                 </TableCell>
               </TableRow>
             ) : (

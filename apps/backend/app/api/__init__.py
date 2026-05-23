@@ -65,13 +65,20 @@ def get_runs(
         query = query.filter(Run.model == model)
     if session_id:
         query = query.filter(Run.session_id == session_id)
+
     if search:
         search_terms = []
         if search.isdigit():
             search_terms.append(Run.id == int(search))
         search_terms.append(Run.prompt.ilike(f"%{search}%"))
-        search_terms.append(Run.session_id.ilike(f"%{search}%"))
-        search_terms.append(Run.model.ilike(f"%{search}%"))
+        search_terms.append(func.coalesce(Run.session_id, '').ilike(f"%{search}%"))
+        search_terms.append(func.coalesce(Run.model, '').ilike(f"%{search}%"))
+        search_terms.append(Run.status.ilike(f"%{search}%"))
+
+        # Add metadata search for error types and workflow names if present
+        search_terms.append(func.coalesce(Run.error_type, '').ilike(f"%{search}%"))
+        search_terms.append(func.coalesce(Run.error_message, '').ilike(f"%{search}%"))
+
         query = query.filter(or_(*search_terms))
 
     total = query.count()

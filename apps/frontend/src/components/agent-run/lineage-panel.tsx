@@ -15,7 +15,21 @@ export async function LineagePanel({ runId }: { runId: number }) {
       // Ignored
   }
 
-  if (!lineage || lineage.chain.length <= 1) return null;
+  if (!lineage || lineage.chain.length <= 1) {
+      return (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <GitPullRequest className="h-4 w-4 text-muted-foreground" />
+                Replay Lineage
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm pl-4 relative text-muted-foreground italic bg-muted/20 border-t py-4">
+             No replay chain exists for this execution.
+          </CardContent>
+        </Card>
+      );
+  }
 
   return (
     <Card>

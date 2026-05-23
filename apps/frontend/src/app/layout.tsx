@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body>
         <div className="flex min-h-screen flex-col bg-background font-sans antialiased text-foreground">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

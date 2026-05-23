@@ -48,7 +48,7 @@ export function ComparisonView({ current, original }: { current: RunDetail, orig
                         </CardHeader>
                         <CardContent className="py-4">
                             <div className="bg-muted p-4 rounded-md text-xs whitespace-pre-wrap font-mono border overflow-x-auto">
-                                {original.response || <span className="text-muted-foreground italic">No response</span>}
+                                {original.response || <span className="text-muted-foreground italic">No response recorded for this run</span>}
                             </div>
                         </CardContent>
                     </Card>
@@ -58,7 +58,7 @@ export function ComparisonView({ current, original }: { current: RunDetail, orig
                 <div className="flex flex-col gap-4">
                     <h3 className="text-sm font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
                         Replay Run #{current.id}
-                        {current.status === "success" && original.status === "failed" && <Badge variant="default" className="bg-green-600 text-white border-green-600"><Check className="h-3 w-3 mr-1"/> Fixed</Badge>}
+
                     </h3>
 
                     <Card className="border-primary/20 shadow-sm shadow-primary/5">
@@ -99,7 +99,7 @@ export function ComparisonView({ current, original }: { current: RunDetail, orig
                         </CardHeader>
                         <CardContent className="py-4">
                             <div className="bg-muted p-4 rounded-md text-xs whitespace-pre-wrap font-mono border overflow-x-auto">
-                                {current.response || <span className="text-muted-foreground italic">No response</span>}
+                                {current.response || <span className="text-muted-foreground italic">No response recorded for this run</span>}
                             </div>
                         </CardContent>
                     </Card>

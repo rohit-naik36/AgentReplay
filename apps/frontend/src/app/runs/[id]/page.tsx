@@ -20,7 +20,7 @@ import { replayRun } from "@/lib/api/actions"; // We will extract the action
 export default async function RunDetailsPage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ compare?: string }> }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  const compareId = searchParams.compare;
+  const compareId = searchParams?.compare;
   let run;
   try {
     run = await getRun(params.id);
@@ -151,7 +151,7 @@ export default async function RunDetailsPage(props: { params: Promise<{ id: stri
                   </div>
                ) : (
                   <div className="text-sm text-muted-foreground italic bg-muted/30 p-4 rounded-md border border-dashed">
-                    No response recorded.
+                    No response recorded for this run. If this is unexpected, check the diagnostics panel for execution failures.
                   </div>
                )}
             </CardContent>
