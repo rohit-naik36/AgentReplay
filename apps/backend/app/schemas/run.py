@@ -28,6 +28,13 @@ class RunBase(BaseModel):
     status: str
     metadata_json: Optional[Dict[str, Any]] = None
 
+    error_type: Optional[str] = None
+    error_message: Optional[str] = None
+    stack_trace: Optional[str] = None
+    timeout_reason: Optional[str] = None
+    malformed_output: Optional[str] = None
+    token_limit_hit: Optional[str] = None
+
 class RunCreate(RunBase):
     tool_calls: Optional[List[ToolCallCreate]] = None
 
@@ -45,3 +52,7 @@ class PaginatedRunsResponse(BaseModel):
     page: int
     size: int
     pages: int
+
+class LineageResponse(BaseModel):
+    original: RunDetailResponse
+    chain: List[RunDetailResponse]

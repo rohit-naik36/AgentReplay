@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { ArrowLeft, Play, Clock, Box, Hash, GitBranch } from "lucide-react";
+import { ArrowLeft, Clock, Box, Hash, GitBranch } from "lucide-react";
 
-import { getRun, replayRun } from "@/lib/api";
+import { getRun } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RCAPanel } from "@/components/agent-run/rca-panel";
+import { LineagePanel } from "@/components/agent-run/lineage-panel";
+import { ComparisonView } from "@/components/agent-run/comparison-view";
+import { ReplayButton } from "@/components/agent-run/replay-button";
+import { replayRun } from "@/lib/api/actions"; // We will extract the action
 
-export default async function RunDetailsPage(props: { params: Promise<{ id: string }> }) {
+export default async function RunDetailsPage(props: { params: Promise<{ id: string }>, searchParams: Promise<{ compare?: string }> }) {
   const params = await props.params;
+  const searchParams = await props.searchParams;
+  const compareId = searchParams?.compare;
   let run;
   try {
     run = await getRun(params.id);
@@ -21,15 +28,29 @@ export default async function RunDetailsPage(props: { params: Promise<{ id: stri
     notFound();
   }
 
-  const handleReplay = async () => {
-    "use server";
-    try {
-      const replayedRun = await replayRun(params.id);
-      redirect(`/runs/${replayedRun.id}?compare=${params.id}`);
-    } catch (error) {
-        console.error("Replay failed", error);
-    }
-  };
+  let originalRunToCompare;
+  if (compareId) {
+      try {
+          originalRunToCompare = await getRun(compareId);
+      } catch {
+          // Ignore invalid compare IDs
+      }
+  }
+
+  if (originalRunToCompare) {
+      return (
+          <div className="flex flex-col gap-6 w-full pb-20">
+              <div className="flex items-center gap-4">
+                  <Link href={`/runs/${run.id}`}>
+                    <Button variant="outline" size="sm" className="gap-2">
+                        <ArrowLeft className="h-4 w-4" /> Exit Comparison
+                    </Button>
+                  </Link>
+              </div>
+              <ComparisonView current={run} original={originalRunToCompare} />
+          </div>
+      )
+  }
 
   return (
     <div className="flex flex-col gap-6 w-full pb-20">
@@ -49,17 +70,14 @@ export default async function RunDetailsPage(props: { params: Promise<{ id: stri
             {run.session_id && <span className="ml-2">| Session: {run.session_id}</span>}
           </p>
         </div>
-        <form action={handleReplay}>
-          <Button type="submit" variant="default" className="gap-2">
-            <Play className="h-4 w-4" />
-            Replay Run
-          </Button>
-        </form>
+        <ReplayButton runId={run.id} replayAction={replayRun} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Timeline Sidebar */}
         <div className="md:col-span-1 flex flex-col gap-4">
+           <RCAPanel run={run} />
+           <LineagePanel runId={run.id} />
            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium">Execution Summary</CardTitle>
@@ -133,7 +151,7 @@ export default async function RunDetailsPage(props: { params: Promise<{ id: stri
                   </div>
                ) : (
                   <div className="text-sm text-muted-foreground italic bg-muted/30 p-4 rounded-md border border-dashed">
-                    No response recorded.
+                    No response recorded for this run. If this is unexpected, check the diagnostics panel for execution failures.
                   </div>
                )}
             </CardContent>

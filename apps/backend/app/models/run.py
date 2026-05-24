@@ -16,6 +16,15 @@ class Run(Base):
     tokens_used = Column(Integer, nullable=True)
     status = Column(String, nullable=False) # success, failed, replayed
     metadata_json = Column(JSON, nullable=True)
+
+    # Failure Metadata
+    error_type = Column(String, nullable=True)
+    error_message = Column(String, nullable=True)
+    stack_trace = Column(String, nullable=True)
+    timeout_reason = Column(String, nullable=True)
+    malformed_output = Column(String, nullable=True)
+    token_limit_hit = Column(String, nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tool_calls = relationship("ToolCall", back_populates="run", cascade="all, delete-orphan")
