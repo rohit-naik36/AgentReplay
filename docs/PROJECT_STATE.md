@@ -83,3 +83,22 @@ Input
 - Retry classification
 - AI debugging copilot
 - Recovery scheduling
+
+---
+
+## AI Collaboration Rules
+
+The following should NOT be added to project documentation:
+
+- agent memory checks
+- hidden context checks
+- internal reasoning statements
+- repeated system boilerplate
+
+Only document:
+
+- product decisions
+- architecture decisions
+- sprint goals
+- implementation details
+- future ideas
