@@ -1,6 +1,8 @@
 from sqlalchemy import inspect
 from app.core.database import engine
-from app.models.run import Base
+from app.core.database import Base
+import app.models.run
+import app.models.execution
 import time
 import logging
 
