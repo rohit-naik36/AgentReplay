@@ -83,3 +83,43 @@ STOP_EXECUTION
 ### Status
 
 Future
+## [Today]
+
+### Title
+
+Execution Playground
+
+### Flow
+
+Input
+→ Execute workflow
+→ Fail naturally
+→ Diagnostics
+→ Replay
+→ Suggested correction
+→ Compare outcomes
+
+Status:
+Planned
+## [Today]
+
+### Title
+
+Selective Recovery Engine
+
+### Problem
+
+Large datasets should not replay entirely.
+
+### Flow
+
+Execution
+→ Identify failed records
+→ Classify failures
+
+AUTO_RETRY
+HUMAN_REVIEW
+STOP_EXECUTION
+
+Status:
+Future
