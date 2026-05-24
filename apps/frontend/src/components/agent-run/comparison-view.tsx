@@ -3,15 +3,36 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import Link from "next/link";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, Check, CheckCircle2 } from "lucide-react";
 
 export function ComparisonView({ current, original }: { current: RunDetail, original: RunDetail }) {
 
     const latencyDiff = (current.latency_ms || 0) - (original.latency_ms || 0);
     const tokensDiff = (current.tokens_used || 0) - (original.tokens_used || 0);
 
+    const failureResolved = original.status === "failed" && current.status === "success";
+    const latencyReduced = latencyDiff < 0;
+    const tokensReduced = tokensDiff < 0;
+    const outputCorrected = !!(original.malformed_output || original.token_limit_hit || original.timeout_reason) && current.status === "success";
+
+    const hasImprovements = failureResolved || latencyReduced || tokensReduced || outputCorrected;
+
     return (
         <div className="flex flex-col gap-6">
+            {hasImprovements && (
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 flex flex-col gap-3">
+                    <h3 className="text-sm font-semibold text-green-600 flex items-center gap-2 uppercase tracking-wider">
+                       <CheckCircle2 className="h-4 w-4" /> Detected Improvements
+                    </h3>
+                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-green-600/90">
+                       {failureResolved && <div className="flex items-center gap-2"><Check className="h-4 w-4"/> Failure resolved</div>}
+                       {latencyReduced && <div className="flex items-center gap-2"><Check className="h-4 w-4"/> Latency reduced by {Math.abs(latencyDiff)}ms</div>}
+                       {tokensReduced && <div className="flex items-center gap-2"><Check className="h-4 w-4"/> Token usage optimized</div>}
+                       {outputCorrected && <div className="flex items-center gap-2"><Check className="h-4 w-4"/> Output structure corrected</div>}
+                    </div>
+                </div>
+            )}
+
             <div className="flex items-center gap-4 bg-muted/50 p-4 rounded-lg border">
                 <ArrowLeftRight className="h-5 w-5 text-muted-foreground" />
                 <h2 className="text-lg font-semibold flex items-center gap-2">

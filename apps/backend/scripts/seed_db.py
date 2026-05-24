@@ -53,7 +53,7 @@ def seed_db():
         model="gpt-4-turbo",
         latency_ms=2100,
         tokens_used=850,
-        status="replayed",
+        status="success",
         metadata_json={"workflow_name": "Shipment Delay Resolution", "agent_name": "Logistics Analyst"},
         created_at=datetime.now() - timedelta(hours=1, minutes=55)
     )
@@ -110,7 +110,7 @@ def seed_db():
         model="claude-3-opus",
         latency_ms=1950,
         tokens_used=435,
-        status="replayed",
+        status="success",
         metadata_json={"workflow_name": "Autonomous Procurement", "agent_name": "Procurement Bot"},
         created_at=datetime.now() - timedelta(minutes=42)
     )
@@ -160,7 +160,7 @@ def seed_db():
         model="gemini-1.5-pro",
         latency_ms=2500,
         tokens_used=150,
-        status="replayed",
+        status="success",
         metadata_json={"workflow_name": "Customer Support Escalation", "agent_name": "Triage Agent"},
         created_at=datetime.now() - timedelta(minutes=8)
     )
