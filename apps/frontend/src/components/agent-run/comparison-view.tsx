@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import Link from "next/link";
-import { ArrowLeftRight, Check } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 
 export function ComparisonView({ current, original }: { current: RunDetail, original: RunDetail }) {
 
