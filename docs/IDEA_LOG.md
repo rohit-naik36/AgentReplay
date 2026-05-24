@@ -123,3 +123,39 @@ STOP_EXECUTION
 
 Status:
 Future
+
+# Potential Moat Ideas
+
+## Candidate 1
+
+Selective Recovery Engine
+
+Potential value:
+
+Replay only failed subsets
+
+Strength:
+
+Medium
+
+Notes:
+
+Requires real execution data
+
+---
+
+## Candidate 2
+
+Recovery Intelligence Layer
+
+Potential value:
+
+Learn optimal recovery strategies
+
+Strength:
+
+High
+
+Notes:
+
+Becomes stronger as data grows
