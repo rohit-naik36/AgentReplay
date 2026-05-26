@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { startExecution, replayExecution } from "./actions";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { CheckCircle2, AlertTriangle, Play, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Play, RefreshCw, Activity } from "lucide-react";
 import { SuggestedCorrection } from "@/components/playground/SuggestedCorrection";
 import { ReplayComparison } from "@/components/playground/ReplayComparison";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -102,76 +102,103 @@ export function PlaygroundContainer() {
         }
     }
 
+
+    const parsedPreview = mode === "natural" ? parseNaturalLanguage(naturalInput) : { workflow, payload: {} };
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex flex-col gap-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Execution Input</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-4">
-                        <Tabs value={mode} onValueChange={(val) => setMode(val as "natural" | "json")} className="w-full">
-                            <TabsList className="w-full grid grid-cols-2 mb-4">
-                                <TabsTrigger value="natural">Natural Language</TabsTrigger>
-                                <TabsTrigger value="json">Raw JSON</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="natural" className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Describe your request</Label>
-                                    <Textarea
-                                        value={naturalInput}
-                                        onChange={(e) => setNaturalInput(e.target.value)}
-                                        rows={4}
-                                        placeholder="e.g. Need 500 units of sku123 delivered next week"
-                                        className="text-sm"
-                                    />
+        <div className="flex flex-col gap-8 w-full max-w-5xl mx-auto">
+            <Card className="border-border shadow-sm">
+                <CardContent className="p-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] divide-y lg:divide-y-0 lg:divide-x">
+                        <div className="p-6 space-y-6">
+                            <Tabs value={mode} onValueChange={(val) => setMode(val as "natural" | "json")} className="w-full">
+                                <TabsList className="grid grid-cols-2 mb-6 max-w-[400px]">
+                                    <TabsTrigger value="natural">Natural Language</TabsTrigger>
+                                    <TabsTrigger value="json">Raw JSON</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="natural" className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-muted-foreground uppercase text-xs tracking-wider">Describe your request</Label>
+                                        <Textarea
+                                            value={naturalInput}
+                                            onChange={(e) => setNaturalInput(e.target.value)}
+                                            placeholder="e.g. Need 500 units of sku123 delivered next week"
+                                            className="min-h-[220px] text-base resize-none p-4"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-muted-foreground uppercase text-xs tracking-wider">Examples</Label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div onClick={() => setNaturalInput("Need 500 units of sku123 delivered next week")} className="cursor-pointer border rounded-md p-3 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors flex flex-col gap-1">
+                                                <span className="font-semibold text-foreground">Procurement</span>
+                                                <span>Need 500 units of sku123</span>
+                                            </div>
+                                            <div onClick={() => setNaturalInput("Track shipment TRK-1002")} className="cursor-pointer border rounded-md p-3 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors flex flex-col gap-1">
+                                                <span className="font-semibold text-foreground">Logistics</span>
+                                                <span>Track shipment TRK-1002</span>
+                                            </div>
+                                            <div onClick={() => setNaturalInput("Escalate refund case REF-2004")} className="cursor-pointer border rounded-md p-3 text-xs text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors flex flex-col gap-1">
+                                                <span className="font-semibold text-foreground">Escalation</span>
+                                                <span>Customer refund not processed</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="json" className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-muted-foreground uppercase text-xs tracking-wider">Target Workflow</Label>
+                                        <Select value={workflow} onValueChange={(val) => {
+                                            setWorkflow(val || "");
+                                            if (val === "Procurement") setPayload('{"vendor_id": "v-1"}');
+                                            if (val === "Logistics") setPayload('{"region": "us-west"}');
+                                            if (val === "Escalation") setPayload('{"customer_id": "c-99"}');
+                                        }}>
+                                            <SelectTrigger><SelectValue/></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Procurement">Procurement</SelectItem>
+                                                <SelectItem value="Logistics">Logistics</SelectItem>
+                                                <SelectItem value="Escalation">Escalation</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-muted-foreground uppercase text-xs tracking-wider">Raw JSON Payload</Label>
+                                        <Textarea
+                                            value={payload}
+                                            onChange={(e) => setPayload(e.target.value)}
+                                            className="font-mono text-sm min-h-[220px] p-4"
+                                        />
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+                        </div>
+                        <div className="p-6 bg-muted/10 space-y-6 flex flex-col">
+                            <div className="space-y-2">
+                                <Label className="text-muted-foreground uppercase text-xs tracking-wider">Detected Workflow</Label>
+                                <div className="border bg-background rounded-md p-3 text-sm font-medium flex items-center gap-2">
+                                    <Activity className="h-4 w-4 text-primary" />
+                                    {mode === "natural" ? parsedPreview.workflow : workflow}
                                 </div>
-                            </TabsContent>
-                            <TabsContent value="json" className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Workflow</Label>
-                                    <Select value={workflow} onValueChange={(val) => {
-                                        setWorkflow(val || "");
-                                        if (val === "Procurement") setPayload('{"vendor_id": "v-1"}');
-                                        if (val === "Logistics") setPayload('{"region": "us-west"}');
-                                        if (val === "Escalation") setPayload('{"customer_id": "c-99"}');
-                                    }}>
-                                        <SelectTrigger><SelectValue/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Procurement">Procurement (JSON Format)</SelectItem>
-                                            <SelectItem value="Logistics">Logistics (Timeout)</SelectItem>
-                                            <SelectItem value="Escalation">Escalation (Missing Data)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                            </div>
+                            <div className="space-y-2 flex-1 flex flex-col">
+                                <Label className="text-muted-foreground uppercase text-xs tracking-wider">Payload Preview</Label>
+                                <div className="border bg-background rounded-md p-4 text-xs font-mono whitespace-pre-wrap flex-1 overflow-auto text-muted-foreground">
+                                    {mode === "natural" ? JSON.stringify(parsedPreview.payload, null, 2) : payload}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Initial Payload (JSON)</Label>
-                                    <Textarea
-                                        value={payload}
-                                        onChange={(e) => setPayload(e.target.value)}
-                                        rows={4}
-                                        className="font-mono text-sm"
-                                    />
-                                </div>
-                            </TabsContent>
-                        </Tabs>
-                        <Button onClick={handleExecute} disabled={isExecuting} className="w-full gap-2 mt-2">
-                            {isExecuting ? <RefreshCw className="h-4 w-4 animate-spin"/> : <Play className="h-4 w-4"/>}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="p-4 border-t bg-muted/30">
+                        <Button onClick={handleExecute} disabled={isExecuting} size="lg" className="w-full gap-2 text-base font-semibold">
+                            {isExecuting ? <RefreshCw className="h-5 w-5 animate-spin"/> : <Play className="h-5 w-5"/>}
                             Execute Workflow
                         </Button>
-                    </CardContent>
-                </Card>
+                    </div>
+                </CardContent>
+            </Card>
 
-                {execution && String(execution.status) === "failed" && !replay && (
-                    <SuggestedCorrection
-                        execution={execution}
-                        onReplay={handleReplay}
-                        isReplaying={isReplaying}
-                    />
-                )}
-            </div>
-
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+                <div className="flex flex-col gap-6">
                 {execution ? (
                     <div className="flex flex-col gap-6">
                         <Card>
@@ -213,16 +240,26 @@ export function PlaygroundContainer() {
                                 </AlertDescription>
                             </Alert>
                         )}
-
-                        {replay && (
-                            <ReplayComparison original={execution} replay={replay} />
-                        )}
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-full border rounded-lg bg-muted/20 text-muted-foreground text-sm p-8 text-center min-h-[300px]">
                         Submit an execution from the panel to view the timeline and diagnostics.
                     </div>
                 )}
+                </div>
+
+                <div className="flex flex-col gap-6">
+                    {execution && String(execution.status) === "failed" && !replay && (
+                        <SuggestedCorrection
+                            execution={execution}
+                            onReplay={handleReplay}
+                            isReplaying={isReplaying}
+                        />
+                    )}
+                    {replay && (
+                        <ReplayComparison original={execution as Record<string, unknown>} replay={replay} />
+                    )}
+                </div>
             </div>
         </div>
     )
