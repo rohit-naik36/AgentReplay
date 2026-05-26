@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { startExecution, replayExecution } from "./actions";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { CheckCircle2, AlertTriangle, Play, RefreshCw, Activity } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Play, RefreshCw } from "lucide-react";
+import { SuggestedCorrection } from "@/components/playground/SuggestedCorrection";
+import { ReplayComparison } from "@/components/playground/ReplayComparison";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -161,23 +163,11 @@ export function PlaygroundContainer() {
                 </Card>
 
                 {execution && String(execution.status) === "failed" && !replay && (
-                    <Card className="border-destructive/20 shadow-sm shadow-destructive/5 bg-destructive/5">
-                        <CardHeader>
-                            <CardTitle className="text-lg text-destructive flex items-center gap-2">
-                                <AlertTriangle className="h-5 w-5"/> Suggested Correction
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <p className="text-sm text-destructive">AgentReplay identified a fix for this failure. You can apply it below to re-run the workflow.</p>
-                            <div className="bg-background p-3 rounded border font-mono text-xs">
-                                {JSON.stringify(execution.suggested_correction as Record<string, unknown>, null, 2)}
-                            </div>
-                            <Button onClick={handleReplay} disabled={isReplaying} variant="default" className="w-full gap-2">
-                                {isReplaying ? <RefreshCw className="h-4 w-4 animate-spin"/> : <Activity className="h-4 w-4"/>}
-                                Apply Fix & Replay
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <SuggestedCorrection
+                        execution={execution}
+                        onReplay={handleReplay}
+                        isReplaying={isReplaying}
+                    />
                 )}
             </div>
 
@@ -225,25 +215,7 @@ export function PlaygroundContainer() {
                         )}
 
                         {replay && (
-                            <Card className="border-green-500/20 shadow-sm shadow-green-500/5 bg-green-500/5">
-                                <CardHeader className="flex flex-row items-center justify-between">
-                                    <CardTitle className="text-lg text-green-600 dark:text-green-400">Replay Comparison</CardTitle>
-                                    <StatusBadge status="success" />
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex flex-col gap-2 text-sm text-green-700 dark:text-green-300">
-                                        <div className="flex items-center gap-2">
-                                            <CheckCircle2 className="h-4 w-4"/> Failure successfully bypassed.
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <CheckCircle2 className="h-4 w-4"/> Correction applied to original payload.
-                                        </div>
-                                    </div>
-                                    <div className="bg-background p-3 rounded border font-mono text-xs opacity-80">
-                                        Applied: {JSON.stringify(replay.correction_applied)}
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <ReplayComparison original={execution} replay={replay} />
                         )}
                     </div>
                 ) : (

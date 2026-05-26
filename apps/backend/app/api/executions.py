@@ -5,6 +5,7 @@ from typing import List
 from app.core.database import get_db
 from app.models.execution import Execution, ExecutionEvent, Replay
 from app.schemas.execution import ExecutionResponse, ExecutionStartRequest, ExecutionReplayRequest, ReplayResponse
+from app.services.correction_service import CorrectionService
 
 router = APIRouter(prefix="/executions", tags=["executions"])
 
@@ -17,35 +18,45 @@ def start_execution(req: ExecutionStartRequest, db: Session = Depends(get_db)):
     suggested_correction = {}
     events = []
 
+    events = [{"step": "Execution Started", "status": "completed"}]
+
     if req.workflow_name == "Procurement":
-        events = [
-            {"step": "Validate Request", "status": "completed"},
-            {"step": "Check Inventory", "status": "completed"},
-            {"step": "Generate PO", "status": "failed", "details": {"error": "Invalid vendor ID format"}}
-        ]
-        failure_reason = "PO Generation Failed"
-        diagnostic_explanation = "The vendor ID provided in the payload does not match the expected format (VND-XXXX). The downstream API rejected it."
-        suggested_correction = {"vendor_id": "VND-1234"}
+        events.append({"step": "Input validated", "status": "completed"})
+        if req.input_payload.get("quantity", 0) > 15:
+            events.append({"step": "Inventory checked", "status": "failed", "details": {"error": "Inventory unavailable"}})
+            failure_reason = "Inventory unavailable"
+        else:
+            events.append({"step": "Inventory checked", "status": "completed"})
+            events.append({"step": "Workflow completed", "status": "completed"})
+            status = "success"
     elif req.workflow_name == "Logistics":
-        events = [
-            {"step": "Route Planning", "status": "completed"},
-            {"step": "Assign Driver", "status": "failed", "details": {"error": "No drivers available in region"}}
-        ]
-        failure_reason = "Driver Assignment Timeout"
-        diagnostic_explanation = "The system attempted to find a driver in the requested region but none were available within the timeout period."
-        suggested_correction = {"region_fallback": True, "timeout_ms": 30000}
+        events.append({"step": "Input validated", "status": "completed"})
+        if not req.input_payload.get("destination"):
+            events.append({"step": "Route planning", "status": "failed", "details": {"error": "Missing destination"}})
+            failure_reason = "Missing destination"
+        else:
+            events.append({"step": "Route planning", "status": "completed"})
+            events.append({"step": "Workflow completed", "status": "completed"})
+            status = "success"
     elif req.workflow_name == "Escalation":
-        events = [
-            {"step": "Analyze Sentiment", "status": "completed"},
-            {"step": "Determine Priority", "status": "failed", "details": {"error": "Missing customer tier information"}}
-        ]
-        failure_reason = "Priority Determination Error"
-        diagnostic_explanation = "The customer profile payload is missing the 'tier' attribute required for routing."
-        suggested_correction = {"customer_tier": "standard"}
+        events.append({"step": "Input validated", "status": "completed"})
+        if not req.input_payload.get("customer_id") or req.input_payload.get("customer_id") == "REF-0000":
+            events.append({"step": "Lookup customer", "status": "failed", "details": {"error": "Missing customer ID"}})
+            failure_reason = "Missing customer ID"
+        else:
+            events.append({"step": "Lookup customer", "status": "completed"})
+            events.append({"step": "Workflow completed", "status": "completed"})
+            status = "success"
     else:
-        # Default success fallback if not a known fail scenario
         status = "success"
-        events = [{"step": "Process", "status": "completed"}]
+        events.append({"step": "Workflow completed", "status": "completed"})
+
+    if failure_reason:
+        status = "failed"
+        correction, diag = CorrectionService.suggest(req.input_payload, failure_reason)
+        suggested_correction = correction
+        diagnostic_explanation = diag
+
 
     exec_record = Execution(
         workflow_name=req.workflow_name,
@@ -78,12 +89,13 @@ def get_execution(exec_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Execution not found")
     return exec_record
 
-@router.post("/{exec_id}/replay", response_model=ReplayResponse)
+@router.post("/{exec_id}/replay", response_model=ExecutionResponse)
 def replay_execution(exec_id: int, req: ExecutionReplayRequest, db: Session = Depends(get_db)):
     original = db.query(Execution).filter(Execution.id == exec_id).first()
     if not original:
         raise HTTPException(status_code=404, detail="Execution not found")
 
+    # Record the replay action itself
     replay_record = Replay(
         original_execution_id=original.id,
         correction_applied=req.correction,
@@ -92,4 +104,38 @@ def replay_execution(exec_id: int, req: ExecutionReplayRequest, db: Session = De
     db.add(replay_record)
     db.commit()
     db.refresh(replay_record)
-    return replay_record
+
+    # Actually perform the "re-run workflow with corrected payload" logic
+    # We create a new Execution record to represent the child run, similar to how standard AgentReplay works
+    events = [{"step": "Execution Started", "status": "completed"}, {"step": "Input validated", "status": "completed"}]
+
+    if original.workflow_name == "Procurement":
+        events.append({"step": "Inventory checked", "status": "completed"})
+    elif original.workflow_name == "Logistics":
+         events.append({"step": "Route planning", "status": "completed"})
+    elif original.workflow_name == "Escalation":
+         events.append({"step": "Lookup customer", "status": "completed"})
+
+    events.append({"step": "Workflow completed", "status": "completed"})
+
+    new_exec = Execution(
+        workflow_name=original.workflow_name,
+        input_payload=req.correction,
+        status="success",
+    )
+    db.add(new_exec)
+    db.commit()
+    db.refresh(new_exec)
+
+    for e in events:
+        db_event = ExecutionEvent(
+            execution_id=new_exec.id,
+            step_name=e["step"],
+            status=e["status"],
+            details=e.get("details")
+        )
+        db.add(db_event)
+    db.commit()
+    db.refresh(new_exec)
+
+    return new_exec
