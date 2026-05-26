@@ -20,11 +20,13 @@ Current Issues:
 
 Next Tasks:
 
-1. Add New Execution button
-2. Add workflow timeline
-3. Add natural failure scenarios
-4. Add replay with suggested correction
+1. Fix tooltip system
+2. Fix dropdown clipping
+3. Add natural language mode
+4. Improve correction explanations
+5. Complete replay improvement visualization
 
 Blocked By:
 
 None
+

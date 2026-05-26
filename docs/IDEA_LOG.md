@@ -159,3 +159,26 @@ High
 Notes:
 
 Becomes stronger as data grows
+
+## [Sprint 2]
+
+### Title
+
+Recovery Classification Engine
+
+Concept:
+
+Failure
+↓
+Classify failure
+
+AUTO_RETRY
+HUMAN_REVIEW
+STOP_EXECUTION
+
+Potential value:
+
+Reduce unnecessary re-execution.
+
+Status:
+Future

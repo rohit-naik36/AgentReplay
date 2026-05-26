@@ -64,17 +64,25 @@ Status: Complete
 
 Phase 2:
 Execution Playground
-Status: Planned
 
-Goal:
+Status:
+In Progress
 
-Input
-→ Execute workflow
-→ Failure
-→ Diagnostics
-→ Replay
-→ Compare
+Completed:
 
+✓ Backend execution routes
+✓ Execution models
+✓ Replay flow
+✓ Timeline
+✓ Diagnostics
+✓ Comparison
+✓ Deterministic workflows
+
+Known Issues:
+
+- Tooltip system incomplete
+- Dropdown clipping issues
+- Natural language input UX still needs polish
 ---
 
 ## Future Ideas
@@ -102,3 +110,40 @@ Only document:
 - sprint goals
 - implementation details
 - future ideas
+
+## AI Collaboration Model
+
+Primary Builder:
+
+Jules
+
+Responsibilities:
+
+- implement sprint tasks
+- create PRs
+- wire frontend/backend/database
+- fix bugs
+- maintain architecture consistency
+
+---
+
+Reviewer / Critic:
+
+Antigravity
+
+Responsibilities:
+
+- identify UX problems
+- identify regressions
+- identify edge cases
+- identify missing user journeys
+- identify architectural risks
+- identify overengineering
+- suggest simplifications
+
+Rules:
+
+- critique before rebuilding
+- preserve MVP-first principles
+- avoid introducing unnecessary complexity
+- avoid redesigning architecture unless required
