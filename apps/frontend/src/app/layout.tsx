@@ -28,7 +28,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="flex-1 container mx-auto px-4 py-8 sm:px-8 max-w-6xl">
+      <main className="flex-1 container mx-auto px-4 py-8 sm:px-8 max-w-[1600px]">
         {children}
       </main>
         <Toaster />

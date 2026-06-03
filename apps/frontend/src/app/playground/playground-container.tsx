@@ -229,17 +229,19 @@ export function PlaygroundContainer() {
                                     ))}
                                 </div>
                             </CardContent>
-                        </Card>
 
-                        {String(execution.status) === "failed" && (
-                            <Alert variant="destructive" className="bg-destructive/10">
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Diagnostics: {String(execution.failure_reason)}</AlertTitle>
-                                <AlertDescription className="text-xs mt-2">
-                                   {String(execution.diagnostic_explanation)}
-                                </AlertDescription>
-                            </Alert>
-                        )}
+                            {String(execution.status) === "failed" && (
+                                <div className="border-t bg-destructive/5 p-4 rounded-b-lg">
+                                    <Alert variant="destructive" className="bg-destructive/10 border-0 shadow-none -m-4 rounded-t-none">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        <AlertTitle>Diagnostics: {String(execution.failure_reason)}</AlertTitle>
+                                        <AlertDescription className="text-xs mt-2">
+                                           {String(execution.diagnostic_explanation)}
+                                        </AlertDescription>
+                                    </Alert>
+                                </div>
+                            )}
+                        </Card>
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-full border rounded-lg bg-muted/20 text-muted-foreground text-sm p-8 text-center min-h-[300px]">
