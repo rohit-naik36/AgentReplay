@@ -12,7 +12,6 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { CheckCircle2, AlertTriangle, Play, RefreshCw, Activity } from "lucide-react";
 import { SuggestedCorrection } from "@/components/playground/SuggestedCorrection";
 import { ReplayComparison } from "@/components/playground/ReplayComparison";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function PlaygroundContainer() {
@@ -106,24 +105,27 @@ export function PlaygroundContainer() {
     const parsedPreview = mode === "natural" ? parseNaturalLanguage(naturalInput) : { workflow, payload: {} };
 
     return (
-        <div className="flex flex-col gap-8 w-full max-w-5xl mx-auto">
+        <div className="flex flex-col gap-8 w-full max-w-[1600px] mx-auto">
             <Card className="border-border shadow-sm">
                 <CardContent className="p-0">
                     <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] divide-y lg:divide-y-0 lg:divide-x">
-                        <div className="p-6 space-y-6">
-                            <Tabs value={mode} onValueChange={(val) => setMode(val as "natural" | "json")} className="w-full">
+                        <div className="p-6 flex flex-col h-full gap-4">
+                            <div className="space-y-1">
+                                <h3 className="text-lg font-semibold tracking-tight">Describe Request</h3>
+                                <p className="text-sm text-muted-foreground">Select an input method for your workflow.</p>
+                            </div>
+                            <Tabs value={mode} onValueChange={(val) => setMode(val as "natural" | "json")} className="w-full flex-1 flex flex-col">
                                 <TabsList className="grid grid-cols-2 mb-6 max-w-[400px]">
                                     <TabsTrigger value="natural">Natural Language</TabsTrigger>
                                     <TabsTrigger value="json">Raw JSON</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="natural" className="space-y-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-muted-foreground uppercase text-xs tracking-wider">Describe your request</Label>
+                                <TabsContent value="natural" className="space-y-6 flex-1 flex flex-col">
+                                    <div className="space-y-2 flex-1 flex flex-col">
                                         <Textarea
                                             value={naturalInput}
                                             onChange={(e) => setNaturalInput(e.target.value)}
                                             placeholder="e.g. Need 500 units of sku123 delivered next week"
-                                            className="min-h-[220px] text-base resize-none p-4"
+                                            className="min-h-[220px] flex-1 text-base resize-none p-4"
                                         />
                                     </div>
                                     <div className="space-y-3">
@@ -144,7 +146,7 @@ export function PlaygroundContainer() {
                                         </div>
                                     </div>
                                 </TabsContent>
-                                <TabsContent value="json" className="space-y-6">
+                                <TabsContent value="json" className="space-y-6 flex-1 flex flex-col">
                                     <div className="space-y-2">
                                         <Label className="text-muted-foreground uppercase text-xs tracking-wider">Target Workflow</Label>
                                         <Select value={workflow} onValueChange={(val) => {
@@ -161,16 +163,22 @@ export function PlaygroundContainer() {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 flex-1 flex flex-col">
                                         <Label className="text-muted-foreground uppercase text-xs tracking-wider">Raw JSON Payload</Label>
                                         <Textarea
                                             value={payload}
                                             onChange={(e) => setPayload(e.target.value)}
-                                            className="font-mono text-sm min-h-[220px] p-4"
+                                            className="font-mono text-sm min-h-[220px] flex-1 p-4"
                                         />
                                     </div>
                                 </TabsContent>
                             </Tabs>
+                            <div className="pt-4 border-t mt-auto">
+                                <Button onClick={handleExecute} disabled={isExecuting} size="lg" className="w-full gap-2 text-base font-semibold">
+                                    {isExecuting ? <RefreshCw className="h-5 w-5 animate-spin"/> : <Play className="h-5 w-5"/>}
+                                    Execute Workflow
+                                </Button>
+                            </div>
                         </div>
                         <div className="p-6 bg-muted/10 space-y-6 flex flex-col">
                             <div className="space-y-2">
@@ -188,16 +196,10 @@ export function PlaygroundContainer() {
                             </div>
                         </div>
                     </div>
-                    <div className="p-4 border-t bg-muted/30">
-                        <Button onClick={handleExecute} disabled={isExecuting} size="lg" className="w-full gap-2 text-base font-semibold">
-                            {isExecuting ? <RefreshCw className="h-5 w-5 animate-spin"/> : <Play className="h-5 w-5"/>}
-                            Execute Workflow
-                        </Button>
-                    </div>
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
                 <div className="flex flex-col gap-6">
                 {execution ? (
                     <div className="flex flex-col gap-6">
@@ -232,13 +234,22 @@ export function PlaygroundContainer() {
                         </Card>
 
                         {String(execution.status) === "failed" && (
-                            <Alert variant="destructive" className="bg-destructive/10">
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Diagnostics: {String(execution.failure_reason)}</AlertTitle>
-                                <AlertDescription className="text-xs mt-2">
-                                   {String(execution.diagnostic_explanation)}
-                                </AlertDescription>
-                            </Alert>
+                            <Card className="border-destructive/20 bg-destructive/5 shadow-sm">
+                                <CardHeader className="pb-3 border-b border-destructive/10 bg-destructive/10">
+                                    <CardTitle className="text-base text-destructive flex items-center gap-2">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        Diagnostics
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="pt-4">
+                                    <div className="space-y-2">
+                                        <h4 className="font-semibold text-sm">{String(execution.failure_reason)}</h4>
+                                        <p className="text-xs text-muted-foreground">
+                                           {String(execution.diagnostic_explanation)}
+                                        </p>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         )}
                     </div>
                 ) : (
@@ -258,6 +269,16 @@ export function PlaygroundContainer() {
                     )}
                     {replay && (
                         <ReplayComparison original={execution as Record<string, unknown>} replay={replay} />
+                    )}
+                    {!replay && execution && String(execution.status) === "completed" && (
+                        <div className="flex items-center justify-center h-full border rounded-lg bg-muted/10 text-muted-foreground text-sm p-8 text-center min-h-[300px]">
+                            Execution completed successfully. No replay needed.
+                        </div>
+                    )}
+                    {!execution && (
+                         <div className="flex items-center justify-center h-full border rounded-lg border-dashed bg-transparent text-muted-foreground text-sm p-8 text-center min-h-[300px]">
+                            Run an execution to see recovery and replay insights here.
+                         </div>
                     )}
                 </div>
             </div>
