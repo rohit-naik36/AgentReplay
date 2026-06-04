@@ -197,7 +197,7 @@ export function PlaygroundContainer() {
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-8">
                 <div className="flex flex-col gap-6">
                 {execution ? (
                     <div className="flex flex-col gap-6">
@@ -232,13 +232,22 @@ export function PlaygroundContainer() {
                         </Card>
 
                         {String(execution.status) === "failed" && (
-                            <Alert variant="destructive" className="bg-destructive/10">
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Diagnostics: {String(execution.failure_reason)}</AlertTitle>
-                                <AlertDescription className="text-xs mt-2">
-                                   {String(execution.diagnostic_explanation)}
-                                </AlertDescription>
-                            </Alert>
+                            <Card className="border-destructive/20 shadow-sm">
+                                <CardHeader className="pb-3 border-b border-destructive/10">
+                                    <CardTitle className="text-lg flex items-center gap-2 text-destructive">
+                                        <AlertTriangle className="h-5 w-5" /> Diagnostics
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="pt-4">
+                                    <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        <AlertTitle>{String(execution.failure_reason)}</AlertTitle>
+                                        <AlertDescription className="text-xs mt-2">
+                                           {String(execution.diagnostic_explanation)}
+                                        </AlertDescription>
+                                    </Alert>
+                                </CardContent>
+                            </Card>
                         )}
                     </div>
                 ) : (
@@ -249,15 +258,23 @@ export function PlaygroundContainer() {
                 </div>
 
                 <div className="flex flex-col gap-6">
-                    {execution && String(execution.status) === "failed" && !replay && (
-                        <SuggestedCorrection
-                            execution={execution}
-                            onReplay={handleReplay}
-                            isReplaying={isReplaying}
-                        />
-                    )}
-                    {replay && (
-                        <ReplayComparison original={execution as Record<string, unknown>} replay={replay} />
+                    {(!execution || String(execution.status) !== "failed") ? (
+                        <div className="flex items-center justify-center h-full border rounded-lg bg-muted/20 text-muted-foreground text-sm p-8 text-center min-h-[300px]">
+                            Replay comparison and recovery tools will appear here if an execution fails.
+                        </div>
+                    ) : (
+                        <>
+                            {!replay && (
+                                <SuggestedCorrection
+                                    execution={execution}
+                                    onReplay={handleReplay}
+                                    isReplaying={isReplaying}
+                                />
+                            )}
+                            {replay && (
+                                <ReplayComparison original={execution as Record<string, unknown>} replay={replay} />
+                            )}
+                        </>
                     )}
                 </div>
             </div>
