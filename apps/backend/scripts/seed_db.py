@@ -7,8 +7,10 @@ def seed_db():
     db = SessionLocal()
 
     # Clean the database so we can rerun this cleanly while iterating on seed data
-    db.query(ToolCall).delete()
-    db.query(Run).delete()
+    existing_runs = db.query(Run).count()
+    if existing_runs > 0:
+        print("Database already seeded. Skipping.")
+        return
     db.commit()
 
     print("Seeding database with complex workflow mock data...")

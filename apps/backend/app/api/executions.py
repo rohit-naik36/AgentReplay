@@ -122,6 +122,7 @@ def replay_execution(exec_id: int, req: ExecutionReplayRequest, db: Session = De
         workflow_name=original.workflow_name,
         input_payload=req.correction,
         status="success",
+        parent_execution_id=original.id,
     )
     db.add(new_exec)
     db.commit()
