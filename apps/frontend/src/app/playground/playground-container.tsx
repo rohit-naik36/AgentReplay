@@ -20,7 +20,7 @@ export function PlaygroundContainer() {
     const [naturalInput, setNaturalInput] = useState("Need 500 units of sku123 delivered next week");
     const [workflow, setWorkflow] = useState("Procurement");
     const [payload, setPayload] = useState('{"vendor_id": "v-1"}');
-
+    
     const [execution, setExecution] = useState<Record<string, unknown> | null>(null);
     const [isExecuting, setIsExecuting] = useState(false);
 
@@ -47,8 +47,8 @@ export function PlaygroundContainer() {
             const qtyMatch = text.match(/\d+/);
             return {
                 workflow: "Procurement",
-                payload: {
-                    workflow: "procurement",
+                payload: { 
+                    workflow: "procurement", 
                     sku: skuMatch ? skuMatch[0].toLowerCase() : "sku-unknown",
                     quantity: qtyMatch ? parseInt(qtyMatch[0]) : 1,
                     delivery: "next week",
@@ -65,7 +65,7 @@ export function PlaygroundContainer() {
         try {
             let activeWorkflow = workflow;
             let activePayload: Record<string, unknown>;
-
+            
             if (mode === "natural") {
                 const parsed = parseNaturalLanguage(naturalInput);
                 activeWorkflow = parsed.workflow;
@@ -73,7 +73,7 @@ export function PlaygroundContainer() {
             } else {
                 activePayload = JSON.parse(payload);
             }
-
+            
             const result = await startExecution(activeWorkflow, activePayload);
             setExecution(result);
             if (result.status === "failed") {
@@ -119,9 +119,9 @@ export function PlaygroundContainer() {
                                 <TabsContent value="natural" className="space-y-6">
                                     <div className="space-y-2">
                                         <Label className="text-muted-foreground uppercase text-xs tracking-wider">Describe your request</Label>
-                                        <Textarea
-                                            value={naturalInput}
-                                            onChange={(e) => setNaturalInput(e.target.value)}
+                                        <Textarea 
+                                            value={naturalInput} 
+                                            onChange={(e) => setNaturalInput(e.target.value)} 
                                             placeholder="e.g. Need 500 units of sku123 delivered next week"
                                             className="min-h-[220px] text-base resize-none p-4"
                                         />
@@ -163,9 +163,9 @@ export function PlaygroundContainer() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-muted-foreground uppercase text-xs tracking-wider">Raw JSON Payload</Label>
-                                        <Textarea
-                                            value={payload}
-                                            onChange={(e) => setPayload(e.target.value)}
+                                        <Textarea 
+                                            value={payload} 
+                                            onChange={(e) => setPayload(e.target.value)} 
                                             className="font-mono text-sm min-h-[220px] p-4"
                                         />
                                     </div>
@@ -229,17 +229,19 @@ export function PlaygroundContainer() {
                                     ))}
                                 </div>
                             </CardContent>
+                            
+                            {String(execution.status) === "failed" && (
+                                <div className="border-t bg-destructive/5 p-4 rounded-b-lg">
+                                    <Alert variant="destructive" className="bg-destructive/10 border-0 shadow-none -m-4 rounded-t-none">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        <AlertTitle>Diagnostics: {String(execution.failure_reason)}</AlertTitle>
+                                        <AlertDescription className="text-xs mt-2">
+                                           {String(execution.diagnostic_explanation)}
+                                        </AlertDescription>
+                                    </Alert>
+                                </div>
+                            )}
                         </Card>
-
-                        {String(execution.status) === "failed" && (
-                            <Alert variant="destructive" className="bg-destructive/10">
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Diagnostics: {String(execution.failure_reason)}</AlertTitle>
-                                <AlertDescription className="text-xs mt-2">
-                                   {String(execution.diagnostic_explanation)}
-                                </AlertDescription>
-                            </Alert>
-                        )}
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-full border rounded-lg bg-muted/20 text-muted-foreground text-sm p-8 text-center min-h-[300px]">
@@ -250,10 +252,10 @@ export function PlaygroundContainer() {
 
                 <div className="flex flex-col gap-6">
                     {execution && String(execution.status) === "failed" && !replay && (
-                        <SuggestedCorrection
-                            execution={execution}
-                            onReplay={handleReplay}
-                            isReplaying={isReplaying}
+                        <SuggestedCorrection 
+                            execution={execution} 
+                            onReplay={handleReplay} 
+                            isReplaying={isReplaying} 
                         />
                     )}
                     {replay && (
