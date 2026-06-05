@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api import router
+from app.api.executions import router as executions_router
 from app.core.database import engine, Base
 
 # Create database tables
@@ -12,6 +13,7 @@ app = FastAPI(
 )
 
 app.include_router(router, prefix="/api")
+app.include_router(executions_router, prefix="/api")
 
 @app.get("/health")
 def health_check():

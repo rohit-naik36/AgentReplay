@@ -20,6 +20,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
                   </Link>
+                  <Link href="/playground" className="transition-colors hover:text-foreground/80 flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Playground
+                  </Link>
               </nav>
           </div>
         </div>
