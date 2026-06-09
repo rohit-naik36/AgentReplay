@@ -27,6 +27,7 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-agentreplay}
+      - AGENTREPLAY_API_KEY=${AGENTREPLAY_API_KEY:-sk-local-dev-key}
     depends_on:
       db:
         condition: service_healthy

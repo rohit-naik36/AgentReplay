@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, func
 from typing import Optional
@@ -10,7 +10,7 @@ from app.schemas.run import RunCreate, RunResponse, RunDetailResponse, Paginated
 
 router = APIRouter()
 
-@router.post("/runs", response_model=RunDetailResponse)
+@router.post("/runs", response_model=RunDetailResponse, status_code=status.HTTP_201_CREATED)
 def create_run(run: RunCreate, db: Session = Depends(get_db), api_key: str = Depends(verify_api_key)):
     db_run = Run(
         session_id=run.session_id,
