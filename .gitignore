@@ -1,0 +1,10 @@
+venv/
+venv/
+apps/backend/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.log
+.pytest_cache/
+.last-run.json
