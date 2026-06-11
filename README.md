@@ -20,10 +20,9 @@ AgentReplay is a lightweight AI agent observability and replay platform for deve
 ### Running with Docker Compose (Recommended)
 
 1. Clone the repository and navigate to the root directory.
-2. Copy the example environment variables and configure your `AGENTREPLAY_API_KEY`:
+2. Copy the example environment variables:
    ```bash
    cp .env.example .env
-   # Ensure you set AGENTREPLAY_API_KEY in the .env file
    ```
 3. Start the services using Docker Compose:
    ```bash
@@ -70,10 +69,6 @@ pnpm dev
 2. Track a run in your AI application:
    ```python
    from agentreplay import track_run
-
-   # Ensure AGENTREPLAY_API_KEY is available in your environment variables
-   import os
-   os.environ["AGENTREPLAY_API_KEY"] = "sk-your-secure-api-key"
 
    track_run(
        prompt="Summarize this document",

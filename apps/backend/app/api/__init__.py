@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc, func
 from typing import Optional
-from app.api.dependencies import verify_api_key
-from fastapi import status
 
 from app.core.database import get_db
 from app.models.run import Run, ToolCall
@@ -11,8 +9,8 @@ from app.schemas.run import RunCreate, RunResponse, RunDetailResponse, Paginated
 
 router = APIRouter()
 
-@router.post("/runs", response_model=RunDetailResponse, status_code=status.HTTP_201_CREATED)
-def create_run(run: RunCreate, db: Session = Depends(get_db), api_key: str = Depends(verify_api_key)):
+@router.post("/runs", response_model=RunDetailResponse)
+def create_run(run: RunCreate, db: Session = Depends(get_db)):
     db_run = Run(
         session_id=run.session_id,
         parent_run_id=run.parent_run_id,
