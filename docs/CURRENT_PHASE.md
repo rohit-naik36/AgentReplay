@@ -61,7 +61,7 @@ Requirements:
 
 Status:
 
-Planned
+Complete ✅
 
 ---
 
@@ -77,7 +77,7 @@ Requirements:
 
 Status:
 
-Planned
+In Progress 🔄
 
 ---
 
@@ -146,3 +146,23 @@ A developer can:
 7. Compare outcomes
 
 If this workflow works end-to-end, Sprint 3 is complete.
+
+# Latest Checkpoint
+
+Date: 2026-06-11
+
+Completed:
+
+- S3-001 API Authentication
+
+Tag:
+
+v0.3.0-auth
+
+Current Work:
+
+- S3-002 Run Schema Validation
+
+Next:
+
+- S3-003 Python SDK MVP
