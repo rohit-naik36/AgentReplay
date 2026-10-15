@@ -5,6 +5,7 @@ from typing import Optional
 
 from app.core.database import get_db
 from app.models.run import Run, ToolCall
+from app.services.pricing import compute_cost_usd, resolve_total_tokens
 from app.schemas.run import RunCreate, RunResponse, RunDetailResponse, PaginatedRunsResponse, LineageResponse
 
 router = APIRouter()
@@ -18,7 +19,11 @@ def create_run(run: RunCreate, db: Session = Depends(get_db)):
         response=run.response,
         model=run.model,
         latency_ms=run.latency_ms,
-        tokens_used=run.tokens_used,
+        tokens_used=resolve_total_tokens(run.tokens_used, run.input_tokens, run.output_tokens, run.cache_read_tokens),
+        input_tokens=run.input_tokens,
+        output_tokens=run.output_tokens,
+        cache_read_tokens=run.cache_read_tokens,
+        cost_usd=run.cost_usd if run.cost_usd is not None else compute_cost_usd(run.model, run.input_tokens, run.output_tokens, run.cache_read_tokens),
         status=run.status,
         metadata_json=run.metadata_json,
         error_type=run.error_type,

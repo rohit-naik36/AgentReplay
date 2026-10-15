@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, DateTime, JSON, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -14,6 +14,11 @@ class Run(Base):
     model = Column(String, nullable=True)
     latency_ms = Column(Integer, nullable=True)
     tokens_used = Column(Integer, nullable=True)
+    # Cost accounting. tokens_used is kept for backward compatibility.
+    input_tokens = Column(Integer, nullable=True)
+    output_tokens = Column(Integer, nullable=True)
+    cache_read_tokens = Column(Integer, nullable=True)
+    cost_usd = Column(Float, nullable=True)  # None when the model has no configured price
     status = Column(String, nullable=False) # success, failed, replayed
     metadata_json = Column(JSON, nullable=True)
 
