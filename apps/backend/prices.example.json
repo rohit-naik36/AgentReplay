@@ -1,0 +1,4 @@
+{
+  "_comment": "USD per 1M tokens. Replace the numbers with your provider's current prices; these are placeholders.",
+  "example-model": {"input_per_mtok": 0.0, "output_per_mtok": 0.0, "cache_read_per_mtok": 0.0}
+}
